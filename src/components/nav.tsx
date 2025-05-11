@@ -2,14 +2,13 @@ import authClient from "@/lib/auth-client";
 import { UserType } from "@/routes/__root";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { LogOut, MoonIcon, Settings, SunIcon } from "lucide-react";
+import { ChevronDown, LogOut, MoonIcon, SunIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./animate-ui/radix/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 export default function Nav({ user }: { user: UserType }) {
   const router = useRouterState();
   const routerr = useRouter();
@@ -30,7 +29,7 @@ export default function Nav({ user }: { user: UserType }) {
   return (
     <nav
       hidden={router.location.pathname === "/"}
-      className="bg-muted fixed top-0 left-0 z-50 h-16 w-full px-4"
+      className="bg-background fixed top-0 left-0 z-50 h-16 w-full border-b px-4"
     >
       <div className="mx-auto flex h-full w-full max-w-2xl items-center justify-between">
         <Link to="/itineraries" className="flex items-center gap-2">
@@ -38,16 +37,19 @@ export default function Nav({ user }: { user: UserType }) {
         </Link>
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <Settings />
+            <ChevronDown />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={toggleTheme}>
-              <Avatar>
-                <AvatarImage src={user?.image as string} />
-                <AvatarFallback>?</AvatarFallback>
-              </Avatar>
-              <span>{user?.name}</span>
-            </DropdownMenuItem>
+            {user ? (
+              <DropdownMenuItem onClick={toggleTheme}>
+                <img
+                  className="size-8 rounded-full"
+                  src={String(user.image)}
+                  alt={user?.name}
+                />
+                <span>{user?.name}</span>
+              </DropdownMenuItem>
+            ) : null}
             <DropdownMenuItem onClick={toggleTheme}>
               <SunIcon className="dark:hidden" />
               <MoonIcon className="hidden dark:block" />
