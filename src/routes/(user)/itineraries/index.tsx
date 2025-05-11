@@ -25,7 +25,6 @@ export const Route = createFileRoute("/(user)/itineraries/")({
 function RouteComponent() {
   const { user } = Route.useLoaderData();
   const itineraries = useSuspenseQuery(getItinerariesQueryOptions(user.id));
-
   return (
     <div className="flex w-full flex-col items-center gap-4 px-4 py-20">
       <ItineraryForm

@@ -8,7 +8,7 @@ import {
 import { deleteItinerary } from "@/lib/server/functions/itinerary";
 import { itinerary as itineraryTypes } from "@/lib/server/schema";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Ellipsis, ExternalLink, Trash2 } from "lucide-react";
 import {
@@ -25,8 +25,8 @@ export default function ItineraryCard({
   itinerary: typeof itineraryTypes.$inferSelect;
   refetch: () => void;
 }) {
-  const route = useRouter();
-
+  const route = useRouterState();
+  const navigate = useNavigate();
   const orderedDates = itinerary.dates.sort(
     (a, b) => new Date(b).getTime() - new Date(a).getTime(),
   );
@@ -39,9 +39,9 @@ export default function ItineraryCard({
 
   return (
     <Card
-      onClick={() => route.navigate({ to: `/itineraries/${itinerary.id}` })}
+      onClick={() => navigate({ to: `/itineraries/${itinerary.id}` })}
       key={itinerary.id}
-      className={`relative w-full max-w-2xl shrink-0 overflow-hidden ${handleDeleteItinerary.isPending && "pointer-events-none animate-pulse opacity-50"}`}
+      className={`relative w-full max-w-2xl shrink-0 overflow-hidden ${handleDeleteItinerary.isPending && "pointer-events-none animate-pulse opacity-50"} ${route.isLoading ? "animate-pulse cursor-progress" : ""}`}
     >
       <div className="z-10 mr-4 flex flex-row items-start gap-4">
         <CardHeader className="flex-1">
