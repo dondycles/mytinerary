@@ -61,7 +61,7 @@ function RouteComponent() {
           )}
 
           <div className="absolute top-0 right-0 bottom-0 left-0 rounded-md"></div>
-          <div className="absolute right-1/2 bottom-1/2 w-full translate-x-1/2 translate-y-1/2 p-4 text-center shadow-xl backdrop-blur-xs backdrop-brightness-50">
+          <div className="absolute right-1/2 bottom-1/2 w-full translate-x-1/2 translate-y-1/2 p-4 text-center shadow-xl backdrop-blur-xs dark:backdrop-brightness-50">
             <p className="truncate text-2xl font-bold sm:text-4xl md:text-5xl">
               {itinerary.data.name}
             </p>

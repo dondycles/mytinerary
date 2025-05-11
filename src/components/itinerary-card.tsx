@@ -76,7 +76,7 @@ export default function ItineraryCard({
       <CardContent className="z-10">{`${format(orderedDates[orderedDates.length - 1], "LLL dd, y")} - ${format(orderedDates[0], "LLL dd, y")}`}</CardContent>
       {itinerary.image && (
         <img
-          className="absolute top-1/2 left-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 brightness-25"
+          className="absolute top-1/2 left-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 dark:brightness-25"
           src={itinerary.image}
         />
       )}

@@ -16,7 +16,7 @@ function Home() {
   const router = useRouter();
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-10 p-2">
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-10 p-4">
       <div className="flex flex-col items-center gap-4">
         <h1 className="text-3xl font-bold sm:text-4xl">myTinerary</h1>
         <p>Simplest way to create a travel itinerary with your friends.</p>
