@@ -6,9 +6,10 @@ export const Route = createFileRoute("/(user)")({
 });
 
 function RouteComponent() {
+  const { user } = Route.useRouteContext();
   return (
     <>
-      <Nav />
+      <Nav user={user} />
       <Outlet />
     </>
   );

@@ -13,10 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as PathlessLayoutImport } from './routes/_pathlessLayout'
 import { Route as userRouteImport } from './routes/(user)/route'
-import { Route as authRouteImport } from './routes/(auth)/route'
 import { Route as IndexImport } from './routes/index'
-import { Route as authSignupImport } from './routes/(auth)/signup'
-import { Route as authLoginImport } from './routes/(auth)/login'
 import { Route as userItinerariesIndexImport } from './routes/(user)/itineraries/index'
 import { Route as userItinerariesIdIndexImport } from './routes/(user)/itineraries/$id/index'
 
@@ -32,27 +29,10 @@ const userRouteRoute = userRouteImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const authRouteRoute = authRouteImport.update({
-  id: '/(auth)',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
-} as any)
-
-const authSignupRoute = authSignupImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => authRouteRoute,
-} as any)
-
-const authLoginRoute = authLoginImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => authRouteRoute,
 } as any)
 
 const userItinerariesIndexRoute = userItinerariesIndexImport.update({
@@ -78,13 +58,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/(auth)': {
-      id: '/(auth)'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof authRouteImport
-      parentRoute: typeof rootRoute
-    }
     '/(user)': {
       id: '/(user)'
       path: '/'
@@ -98,20 +71,6 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof PathlessLayoutImport
       parentRoute: typeof rootRoute
-    }
-    '/(auth)/login': {
-      id: '/(auth)/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof authLoginImport
-      parentRoute: typeof authRouteImport
-    }
-    '/(auth)/signup': {
-      id: '/(auth)/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof authSignupImport
-      parentRoute: typeof authRouteImport
     }
     '/(user)/itineraries/': {
       id: '/(user)/itineraries/'
@@ -132,20 +91,6 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-interface authRouteRouteChildren {
-  authLoginRoute: typeof authLoginRoute
-  authSignupRoute: typeof authSignupRoute
-}
-
-const authRouteRouteChildren: authRouteRouteChildren = {
-  authLoginRoute: authLoginRoute,
-  authSignupRoute: authSignupRoute,
-}
-
-const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
-  authRouteRouteChildren,
-)
-
 interface userRouteRouteChildren {
   userItinerariesIndexRoute: typeof userItinerariesIndexRoute
   userItinerariesIdIndexRoute: typeof userItinerariesIdIndexRoute
@@ -163,8 +108,6 @@ const userRouteRouteWithChildren = userRouteRoute._addFileChildren(
 export interface FileRoutesByFullPath {
   '/': typeof userRouteRouteWithChildren
   '': typeof PathlessLayoutRoute
-  '/login': typeof authLoginRoute
-  '/signup': typeof authSignupRoute
   '/itineraries': typeof userItinerariesIndexRoute
   '/itineraries/$id': typeof userItinerariesIdIndexRoute
 }
@@ -172,8 +115,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof userRouteRouteWithChildren
   '': typeof PathlessLayoutRoute
-  '/login': typeof authLoginRoute
-  '/signup': typeof authSignupRoute
   '/itineraries': typeof userItinerariesIndexRoute
   '/itineraries/$id': typeof userItinerariesIdIndexRoute
 }
@@ -181,34 +122,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/(auth)': typeof authRouteRouteWithChildren
   '/(user)': typeof userRouteRouteWithChildren
   '/_pathlessLayout': typeof PathlessLayoutRoute
-  '/(auth)/login': typeof authLoginRoute
-  '/(auth)/signup': typeof authSignupRoute
   '/(user)/itineraries/': typeof userItinerariesIndexRoute
   '/(user)/itineraries/$id/': typeof userItinerariesIdIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | ''
-    | '/login'
-    | '/signup'
-    | '/itineraries'
-    | '/itineraries/$id'
+  fullPaths: '/' | '' | '/itineraries' | '/itineraries/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/login' | '/signup' | '/itineraries' | '/itineraries/$id'
+  to: '/' | '' | '/itineraries' | '/itineraries/$id'
   id:
     | '__root__'
     | '/'
-    | '/(auth)'
     | '/(user)'
     | '/_pathlessLayout'
-    | '/(auth)/login'
-    | '/(auth)/signup'
     | '/(user)/itineraries/'
     | '/(user)/itineraries/$id/'
   fileRoutesById: FileRoutesById
@@ -216,14 +145,12 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  authRouteRoute: typeof authRouteRouteWithChildren
   userRouteRoute: typeof userRouteRouteWithChildren
   PathlessLayoutRoute: typeof PathlessLayoutRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  authRouteRoute: authRouteRouteWithChildren,
   userRouteRoute: userRouteRouteWithChildren,
   PathlessLayoutRoute: PathlessLayoutRoute,
 }
@@ -239,20 +166,12 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/(auth)",
         "/(user)",
         "/_pathlessLayout"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/(auth)": {
-      "filePath": "(auth)/route.tsx",
-      "children": [
-        "/(auth)/login",
-        "/(auth)/signup"
-      ]
     },
     "/(user)": {
       "filePath": "(user)/route.tsx",
@@ -263,14 +182,6 @@ export const routeTree = rootRoute
     },
     "/_pathlessLayout": {
       "filePath": "_pathlessLayout.tsx"
-    },
-    "/(auth)/login": {
-      "filePath": "(auth)/login.tsx",
-      "parent": "/(auth)"
-    },
-    "/(auth)/signup": {
-      "filePath": "(auth)/signup.tsx",
-      "parent": "/(auth)"
     },
     "/(user)/itineraries/": {
       "filePath": "(user)/itineraries/index.tsx",

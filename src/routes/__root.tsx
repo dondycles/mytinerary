@@ -22,6 +22,8 @@ const getUser = createServerFn({ method: "GET" }).handler(async () => {
   return session?.user || null;
 });
 
+export type UserType = Awaited<ReturnType<typeof getUser>>;
+
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   user: Awaited<ReturnType<typeof getUser>>;

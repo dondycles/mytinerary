@@ -1,58 +1,103 @@
-import ThemeToggle from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import authClient from "@/lib/auth-client";
-import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { GalleryVerticalEnd } from "lucide-react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/")({
   component: Home,
   loader: ({ context }) => {
-    return { user: context.user };
+    if (context.user) {
+      throw redirect({
+        to: "/",
+      });
+    }
+    return {
+      redirectUrl: "/itineraries",
+      user: context.user,
+      queryClient: context.queryClient,
+    };
   },
 });
 
 function Home() {
-  const { queryClient } = Route.useRouteContext();
-  const { user } = Route.useLoaderData();
-  const router = useRouter();
+  const { redirectUrl, queryClient } = Route.useLoaderData();
+  const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isLoading) return;
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    if (!email || !password) return;
+
+    setIsLoading(true);
+    setErrorMessage("");
+
+    authClient.signIn.email(
+      {
+        email,
+        password,
+        callbackURL: redirectUrl,
+      },
+      {
+        onError: (ctx) => {
+          setErrorMessage(ctx.error.message);
+          setIsLoading(false);
+        },
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({ queryKey: ["user"] });
+          navigate({ to: redirectUrl });
+        },
+      },
+    );
+  };
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-10 p-4">
-      <div className="flex flex-col items-center gap-4">
-        <h1 className="text-3xl font-bold sm:text-4xl">myTinerary</h1>
-        <p>Simplest way to create a travel itinerary with your friends.</p>
-      </div>
-
-      {user ? (
-        <div className="flex flex-col items-center gap-2">
-          <p>Welcome back, {user.name}!</p>
-          <div className="flex gap-2">
-            <Button type="button" asChild>
-              <Link to="/itineraries">Itineraries</Link>
-            </Button>
-            <Button
-              onClick={async () => {
-                await authClient.signOut();
-                await queryClient.invalidateQueries({ queryKey: ["user"] });
-                await router.invalidate();
-              }}
-              type="button"
-              variant="destructive"
-            >
-              Sign out
-            </Button>
-            <ThemeToggle />
+    <div className="flex h-dvh w-full flex-col items-center justify-center gap-6 p-4">
+      <form onSubmit={handleSubmit}>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col items-center gap-2">
+            <a href="#" className="flex flex-col items-center gap-2 font-medium">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md">
+                <GalleryVerticalEnd className="size-6" />
+              </div>
+              <span className="sr-only">Acme Inc.</span>
+            </a>
+            <h1 className="text-xl font-bold">Welcome to myTinerary.</h1>
+            <p>Simplest way to create a travel itinerary with your friends.</p>
           </div>
-        </div>
-      ) : (
-        <div className="flex gap-2">
+          {errorMessage && (
+            <span className="text-destructive text-center text-sm">{errorMessage}</span>
+          )}
+
           <Button
             variant="outline"
+            className="w-full"
             type="button"
+            disabled={isLoading}
             onClick={() =>
-              authClient.signIn.social({
-                provider: "google",
-                callbackURL: "/itineraries",
-              })
+              authClient.signIn.social(
+                {
+                  provider: "google",
+                  callbackURL: redirectUrl,
+                },
+                {
+                  onRequest: () => {
+                    setIsLoading(true);
+                    setErrorMessage("");
+                  },
+                  onError: (ctx) => {
+                    setIsLoading(false);
+                    setErrorMessage(ctx.error.message);
+                  },
+                },
+              )
             }
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -63,9 +108,8 @@ function Home() {
             </svg>
             Login with Google
           </Button>
-          <ThemeToggle />
         </div>
-      )}
+      </form>
     </div>
   );
 }
