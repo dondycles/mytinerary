@@ -9,6 +9,7 @@ import { ActivitySchema } from "@/lib/zod/activcity";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Plus } from "lucide-react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { DateTimePickerForm } from "./date-time-picker";
@@ -62,13 +63,21 @@ export default function AddActivityCollapsible({
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} className="flex-1">
-      <CollapsibleTrigger asChild>
-        <Button variant="ghost" className="text-muted-foreground flex w-full gap-4">
-          <div className="border-muted h-px flex-1 border-t-2 border-dashed" />
-          <Plus className="text-muted-foreground" />
-          <div className="border-muted h-px flex-1 border-t-2 border-dashed" />
-        </Button>
-      </CollapsibleTrigger>
+      {!open && (
+        <motion.div layout>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              className="text-muted-foreground flex w-full gap-4 rounded-full"
+            >
+              <div className="border-muted h-px flex-1 border-t-2 border-dashed" />
+              <Plus className="text-muted-foreground" />
+              <div className="border-muted h-px flex-1 border-t-2 border-dashed" />
+            </Button>
+          </CollapsibleTrigger>
+        </motion.div>
+      )}
+
       <CollapsibleContent className="space-y-2">
         <div className="grid grid-cols-[minmax(0px,112px)_1fr] gap-4 pt-4">
           <div className="flex flex-col gap-4">
@@ -114,7 +123,7 @@ export default function AddActivityCollapsible({
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Name" {...field} />
+                      <Input placeholder="Name" className="rounded-full" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -127,17 +136,26 @@ export default function AddActivityCollapsible({
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Descriptions" {...field} />
+                      <Textarea
+                        className="rounded-2xl"
+                        placeholder="Descriptions"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <DialogFooter>
-                <Button type="submit" disabled={isSubmitting || !form.formState.isDirty}>
+                <Button
+                  className="rounded-full"
+                  type="submit"
+                  disabled={isSubmitting || !form.formState.isDirty}
+                >
                   {isSubmitting ? <Loader2 className="animate-spin" /> : "Add"}
                 </Button>
                 <Button
+                  className="rounded-full"
                   type="button"
                   disabled={isSubmitting}
                   onClick={() => {

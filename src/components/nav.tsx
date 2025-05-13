@@ -1,8 +1,15 @@
 import authClient from "@/lib/auth-client";
 import { UserType } from "@/routes/__root";
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { ChevronDown, LogOut, MoonIcon, SunIcon } from "lucide-react";
+import { Link, useLocation, useRouter } from "@tanstack/react-router";
+import {
+  ChevronDown,
+  GalleryVerticalEnd,
+  LogOut,
+  MoonIcon,
+  SunIcon,
+  User2,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +17,8 @@ import {
   DropdownMenuTrigger,
 } from "./animate-ui/radix/dropdown-menu";
 export default function Nav({ user }: { user: UserType }) {
-  const router = useRouterState();
-  const routerr = useRouter();
+  const router = useRouter();
+  const location = useLocation();
   const queryClient = useQueryClient();
   function toggleTheme() {
     if (
@@ -28,25 +35,21 @@ export default function Nav({ user }: { user: UserType }) {
   }
   return (
     <nav
-      hidden={router.location.pathname === "/"}
-      className="bg-background fixed top-0 left-0 z-50 h-16 w-full border-b px-4"
+      hidden={location.pathname === "/"}
+      className="bg-background text-muted-foreground fixed top-0 left-0 z-50 h-16 w-full border-b px-4"
     >
       <div className="mx-auto flex h-full w-full max-w-2xl items-center justify-between">
         <Link to="/itineraries" className="flex items-center gap-2">
-          <p className="text-2xl font-bold">myTinerary</p>
+          <GalleryVerticalEnd className="size-5" />
         </Link>
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <ChevronDown />
+            <ChevronDown className="size-5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {user ? (
               <DropdownMenuItem onClick={toggleTheme}>
-                <img
-                  className="size-8 rounded-full"
-                  src={String(user.image)}
-                  alt={user?.name}
-                />
+                <User2 />
                 <span>{user?.name}</span>
               </DropdownMenuItem>
             ) : null}
@@ -59,8 +62,8 @@ export default function Nav({ user }: { user: UserType }) {
               onClick={async () => {
                 await authClient.signOut();
                 await queryClient.resetQueries();
-                await routerr.invalidate();
-                await routerr.navigate({ to: "/" });
+                await router.invalidate();
+                await router.navigate({ to: "/" });
               }}
             >
               <LogOut />

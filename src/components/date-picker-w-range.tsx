@@ -24,7 +24,7 @@ export function MultipleDatePicker({
           <Button
             variant={"outline"}
             className={cn(
-              "flex h-fit w-full items-center-safe justify-start text-left font-normal whitespace-break-spaces",
+              "flex h-fit w-full items-center-safe justify-start rounded-full text-left font-normal whitespace-break-spaces",
               !dates && "text-muted-foreground",
             )}
           >

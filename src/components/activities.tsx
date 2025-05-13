@@ -37,7 +37,7 @@ export default function Activities({
         }
       }}
     >
-      <div className="bg-muted/25 rounded-md p-4">
+      <div className="rounded-3xl border p-4">
         <CollapsibleTrigger asChild>
           <div
             className={`text-muted-foreground ${collapse ? "mb-4" : ""} flex items-center justify-between gap-4`}
@@ -45,7 +45,7 @@ export default function Activities({
             <p className="text-sm">{format(date, "LLL dd, y")}</p>
             <div className="just flex items-center justify-center gap-2">
               <Button
-                variant={"secondary"}
+                variant={"ghost"}
                 size={"icon"}
                 hidden={activities.length === 0}
                 className={`text-muted-foreground flex items-center justify-center rounded-full ${collapse ? "opacity-100" : "pointer-events-none opacity-0"} transition-all duration-300`}
@@ -64,7 +64,7 @@ export default function Activities({
               </Button>
               {activities.length === 0 ? null : (
                 <Button
-                  variant={"secondary"}
+                  variant={"ghost"}
                   size={"icon"}
                   className="text-muted-foreground flex items-center justify-center rounded-full"
                 >

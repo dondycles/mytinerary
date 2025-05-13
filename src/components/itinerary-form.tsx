@@ -105,7 +105,10 @@ export default function ItineraryForm({
           {icon}
         </Button>
       </DialogTrigger>
-      <DialogContent onInteractOutside={(e) => e.preventDefault()} className="w-lg">
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        className="w-lg rounded-3xl p-4"
+      >
         <DialogHeader>
           <DialogTitle>
             {itineraryInitialData ? "Update Itinerary" : "New Itinerary"}
@@ -147,7 +150,7 @@ export default function ItineraryForm({
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Boracay" {...field} />
+                    <Input className="rounded-full" placeholder="Boracay" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -160,7 +163,7 @@ export default function ItineraryForm({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea {...field} />
+                    <Textarea className="rounded-2xl" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -194,7 +197,7 @@ export default function ItineraryForm({
                   <Button
                     type="button"
                     disabled={isSubmitting || !form.formState.isDirty}
-                    className="w-full"
+                    className="w-full rounded-full"
                   >
                     {isSubmitting ? <Loader2 className="animate-spin" /> : "Update"}
                   </Button>
@@ -203,7 +206,7 @@ export default function ItineraryForm({
                 <Button
                   type="submit"
                   disabled={isSubmitting || !form.formState.isDirty}
-                  className="w-full"
+                  className="w-full rounded-full"
                 >
                   {isSubmitting ? <Loader2 className="animate-spin" /> : "Create"}
                 </Button>
@@ -213,7 +216,7 @@ export default function ItineraryForm({
                 type="button"
                 variant={"destructive"}
                 disabled={isSubmitting}
-                className="w-full"
+                className="w-full rounded-full"
                 onClick={() => {
                   setOpen(false);
                   form.reset();

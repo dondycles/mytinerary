@@ -16,7 +16,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "./animate-ui/radix/dropdown-menu";
 
 export default function ItineraryCard({
   itinerary,
