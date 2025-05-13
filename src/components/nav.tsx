@@ -48,7 +48,7 @@ export default function Nav({ user }: { user: UserType }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {user ? (
-              <DropdownMenuItem onClick={toggleTheme}>
+              <DropdownMenuItem>
                 <User2 />
                 <span>{user?.name}</span>
               </DropdownMenuItem>

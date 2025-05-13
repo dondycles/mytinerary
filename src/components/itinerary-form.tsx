@@ -94,12 +94,7 @@ export default function ItineraryForm({
   const isSubmitting = form.formState.isSubmitting || handleAddItinerary.isPending;
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(c) => {
-        setOpen(c);
-      }}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={variant} size={"icon"} className={cn("", className)}>
           {icon}

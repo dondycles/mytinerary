@@ -1,6 +1,18 @@
 import Activities from "@/components/activities";
+import { CopyButton } from "@/components/animate-ui/buttons/copy";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/animate-ui/radix/dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/animate-ui/radix/radio-group";
 import ItineraryForm from "@/components/itinerary-form";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { deepViewItineraryQueryOptions } from "@/lib/queries/itinerary";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
@@ -32,6 +44,7 @@ function RouteComponent() {
   const { id } = Route.useLoaderData();
   const route = useRouter();
   const itinerary = useSuspenseQuery(deepViewItineraryQueryOptions(id));
+  const shareCode = crypto.randomUUID();
   const dates = itinerary.data.dates.sort(
     (a, b) => new Date(a).getTime() - new Date(b).getTime(),
   );
@@ -60,9 +73,44 @@ function RouteComponent() {
             <ChevronLeft />
           </Button>
           <div className="flex flex-row gap-2">
-            <Button size={"icon"} variant={"ghost"} className="rounded-full">
-              <Share2 />
-            </Button>
+            <Dialog modal>
+              <DialogTrigger>
+                <Button size={"icon"} variant={"ghost"} className="rounded-full">
+                  <Share2 />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="rounded-3xl p-4">
+                <DialogHeader>
+                  <DialogTitle>Share</DialogTitle>
+                  <DialogDescription>
+                    Let your friends see or edit this itinerary.
+                  </DialogDescription>
+                </DialogHeader>
+                <RadioGroup defaultValue="default">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="default" id="r1" />
+                    <Label htmlFor="r1">View Only</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="comfortable" id="r2" />
+                    <Label htmlFor="r2">View and Edit</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="compact" id="r3" />
+                    <Label htmlFor="r3">View, Edit, and Share</Label>
+                  </div>
+                </RadioGroup>
+                <div className="flex w-full flex-1 items-center gap-2">
+                  <Input
+                    placeholder={shareCode}
+                    value={shareCode}
+                    className="flex-1 rounded-full"
+                  />
+                  <CopyButton variant={"ghost"} content={shareCode} size="default" />
+                </div>
+              </DialogContent>
+            </Dialog>
+
             <ItineraryForm
               variant={"ghost"}
               isEditing

@@ -81,7 +81,7 @@ export default function Activities({
         ) : (
           <CollapsibleContent>
             <div
-              className={`"flex h-full flex-col space-y-4 ${isEditing ? "divide-y-0 divide-none" : "divide-y-1 divide-dashed"}" transition-all duration-300`}
+              className={`"flex h-full flex-col space-y-4 ${isEditing ? "divide-y-0 divide-none" : "divide-y-1 divide-dotted"}" transition-all duration-300`}
             >
               {activities.map((act, i) => (
                 // activities have different days
