@@ -1,6 +1,6 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { activity, itinerary } from "../schema";
@@ -22,6 +22,7 @@ export const addItinerary = createServerFn({ method: "POST" })
       description: data.description,
       image: data.image,
       dates: data.dates,
+      people: [user.id],
     });
   });
 export const editItinerary = createServerFn({ method: "POST" })
@@ -89,6 +90,13 @@ export const deepViewItinerary = createServerFn({ method: "GET" })
           orderBy: [asc(activity.startTime)],
         },
       },
+      extras: {
+        peopleData: sql<(typeof user)[]>`(
+    select json_agg(u) as people_data
+    from "user" u
+    where u.id = any(${itinerary.people})
+  )`.as("people_data"),
+      },
     });
   });
 
@@ -123,4 +131,18 @@ export const hideThisDate = createServerFn({ method: "POST" })
         updatedAt: new Date(),
       })
       .where(and(eq(itinerary.userId, user.id), eq(itinerary.id, itineraryData.id)));
+  });
+
+export const changeItineraryPrivacy = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator(
+    (data: { privacy: (typeof itinerary.$inferSelect)["privacy"]; id: number }) => data,
+  )
+  .handler(async ({ context: { user }, data: { privacy, id } }) => {
+    await db
+      .update(itinerary)
+      .set({
+        privacy,
+      })
+      .where(and(eq(itinerary.userId, user.id), eq(itinerary.id, id)));
   });

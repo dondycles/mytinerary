@@ -13,6 +13,14 @@ export const itinerary = pgTable("itinerary", {
   updatedAt: timestamp("updated_at").defaultNow(),
   dates: timestamp("dates").array().notNull(),
   hiddenDates: timestamp("hidden_dates").array(),
+  privacy: text("privacy")
+    .$type<"private" | "collaborative">()
+    .default("private")
+    .notNull(),
+  people: text("people").array().notNull(),
+  collabId: text("collabId")
+    .$default(() => crypto.randomUUID())
+    .notNull(),
 });
 
 export const activity = pgTable("activity", {

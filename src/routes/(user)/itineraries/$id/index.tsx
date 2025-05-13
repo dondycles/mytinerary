@@ -15,10 +15,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { deepViewItineraryQueryOptions } from "@/lib/queries/itinerary";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { changeItineraryPrivacy } from "@/lib/server/functions/itinerary";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { isSameDay } from "date-fns";
-import { ChevronLeft, Pencil, Share2 } from "lucide-react";
+import { ChevronLeft, Lock, Pencil, Users2 } from "lucide-react";
 export const Route = createFileRoute("/(user)/itineraries/$id/")({
   beforeLoad: async ({ context }) => {
     if (!context.user) {
@@ -45,7 +46,6 @@ function RouteComponent() {
   const { id } = Route.useLoaderData();
   const route = useRouter();
   const itinerary = useSuspenseQuery(deepViewItineraryQueryOptions(id));
-  const shareCode = crypto.randomUUID();
   const dates = itinerary.data.dates.sort(
     (a, b) => new Date(a).getTime() - new Date(b).getTime(),
   );
@@ -57,6 +57,14 @@ function RouteComponent() {
       date,
     }));
   };
+
+  const handleChangeItineraryPrivacy = useMutation({
+    mutationFn: async (privacy: "private" | "collaborative") =>
+      await changeItineraryPrivacy({ data: { id, privacy } }),
+    onSuccess: () => {
+      itinerary.refetch();
+    },
+  });
 
   return (
     <div
@@ -77,38 +85,62 @@ function RouteComponent() {
             <Dialog modal>
               <DialogTrigger asChild>
                 <Button size={"icon"} variant={"ghost"} className="rounded-full">
-                  <Share2 />
+                  {itinerary.data.privacy === "private" ? <Lock /> : <Users2 />}
                 </Button>
               </DialogTrigger>
               <DialogContent className="rounded-3xl p-4">
                 <DialogHeader>
-                  <DialogTitle>Share</DialogTitle>
+                  <DialogTitle>Privacy</DialogTitle>
                   <DialogDescription>
-                    Let your friends see or edit this itinerary.
+                    Please be mindful when sharing your itinerary.
                   </DialogDescription>
                 </DialogHeader>
-                <RadioGroup defaultValue="default">
+                <RadioGroup
+                  disabled={
+                    handleChangeItineraryPrivacy.isPending || !itinerary.isFetched
+                  }
+                  value={itinerary.data.privacy}
+                >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="default" id="r1" />
-                    <Label htmlFor="r1">View Only</Label>
+                    <RadioGroupItem
+                      onClick={() => handleChangeItineraryPrivacy.mutate("private")}
+                      value="private"
+                      id="r1"
+                    />
+                    <Label htmlFor="r1">Private</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="comfortable" id="r2" />
-                    <Label htmlFor="r2">View and Edit</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="compact" id="r3" />
-                    <Label htmlFor="r3">View, Edit, and Share</Label>
+                    <RadioGroupItem
+                      onClick={() => handleChangeItineraryPrivacy.mutate("collaborative")}
+                      value="collaborative"
+                      id="r2"
+                    />
+                    <Label htmlFor="r2">Collaborative</Label>
                   </div>
                 </RadioGroup>
-                <div className="flex w-full flex-1 items-center gap-2">
-                  <Input
-                    placeholder={shareCode}
-                    value={shareCode}
-                    className="flex-1 rounded-full"
-                  />
-                  <CopyButton variant={"ghost"} content={shareCode} size="default" />
-                </div>
+
+                {itinerary.data.privacy === "collaborative" ? (
+                  <div className="flex flex-col gap-2">
+                    {itinerary.data.peopleData.map((p) => (
+                      <p key={p.id} className="text-muted-foreground text-sm">
+                        {p.email}
+                      </p>
+                    ))}
+                    <div className="flex w-full flex-1 items-center gap-2">
+                      <Input
+                        disabled
+                        placeholder={itinerary.data.collabId}
+                        value={itinerary.data.collabId}
+                        className="flex-1 rounded-full"
+                      />
+                      <CopyButton
+                        variant={"ghost"}
+                        content={itinerary.data.collabId}
+                        size="default"
+                      />
+                    </div>
+                  </div>
+                ) : null}
               </DialogContent>
             </Dialog>
 
