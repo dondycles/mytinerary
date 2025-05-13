@@ -9,6 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/animate-ui/radix/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/animate-ui/radix/radio-group";
+import ItineraryCard from "@/components/itinerary-card";
 import ItineraryForm from "@/components/itinerary-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,28 +122,7 @@ function RouteComponent() {
             />
           </div>
         </div>
-        <div className="space-y-4 rounded-3xl border p-4">
-          {itinerary.data.image ? (
-            <img
-              src={itinerary.data.image}
-              className="aspect-video w-full rounded-2xl object-cover object-center"
-            />
-          ) : null}
-          <div>
-            <p className="truncate text-2xl font-bold sm:text-4xl md:text-5xl">
-              {itinerary.data.name}
-            </p>
-            <p className="text-muted-foreground line-clamp-6 text-sm">
-              {itinerary.data.dates
-                .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0]
-                .toLocaleDateString()}
-            </p>
-            {itinerary.data.description ? (
-              <p className="mt-2">{itinerary.data.description}</p>
-            ) : null}
-          </div>
-        </div>
-
+        <ItineraryCard itinerary={itinerary.data} />
         {groupActivitiesByDate().map((act) => (
           <Activities
             itinerary={itinerary.data}

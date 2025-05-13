@@ -1,91 +1,32 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { deleteItinerary } from "@/lib/server/functions/itinerary";
 import { itinerary as itineraryTypes } from "@/lib/server/schema";
-import { useMutation } from "@tanstack/react-query";
-import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { format } from "date-fns";
-import { Ellipsis, ExternalLink, Trash2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./animate-ui/radix/dropdown-menu";
-import { Button } from "./ui/button";
+import { Link } from "@tanstack/react-router";
 
 export default function ItineraryCard({
   itinerary,
-  refetch,
 }: {
   itinerary: typeof itineraryTypes.$inferSelect;
-  refetch: () => void;
 }) {
-  const route = useRouterState();
-  const navigate = useNavigate();
-  const orderedDates = itinerary.dates.sort(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime(),
-  );
-  const handleDeleteItinerary = useMutation({
-    mutationFn: async (id: number) => await deleteItinerary({ data: id }),
-    onSuccess: () => {
-      refetch();
-    },
-  });
-
   return (
-    <Card
-      onClick={() => navigate({ to: `/itineraries/${itinerary.id}` })}
-      key={itinerary.id}
-      className={`relative w-full max-w-2xl shrink-0 overflow-hidden ${handleDeleteItinerary.isPending && "pointer-events-none animate-pulse opacity-50"} ${route.isLoading ? "animate-pulse cursor-progress" : ""}`}
-    >
-      <div className="z-10 mr-4 flex flex-row items-start gap-4">
-        <CardHeader className="flex-1">
-          <CardTitle className="sm:text-2xl"> {itinerary.name}</CardTitle>
-          {itinerary.description && (
-            <CardDescription>{itinerary.description}</CardDescription>
-          )}
-        </CardHeader>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            asChild
-            className="flex size-10 items-center justify-center rounded-full"
-          >
-            <Button variant={"ghost"}>
-              <Ellipsis className="text-muted-foreground size-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <ExternalLink />
-              View
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteItinerary.mutate(itinerary.id);
-              }}
-              variant="destructive"
-            >
-              <Trash2 />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+    <Link to="/itineraries/$id" params={{ id: itinerary.id.toString() }}>
+      <div className="w-full max-w-2xl space-y-4 rounded-3xl border p-4">
+        {itinerary.image ? (
+          <img
+            src={itinerary.image}
+            className="aspect-video w-full rounded-2xl object-cover object-center"
+          />
+        ) : null}
+        <div className="space-y-2">
+          <p className="truncate text-2xl font-bold sm:text-4xl md:text-5xl">
+            {itinerary.name}
+          </p>
+          <p className="text-muted-foreground line-clamp-6 text-sm">
+            {itinerary.dates
+              .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0]
+              .toLocaleDateString()}
+          </p>
+          {itinerary.description ? <p>{itinerary.description}</p> : null}
+        </div>
       </div>
-
-      <CardContent className="z-10">{`${format(orderedDates[orderedDates.length - 1], "LLL dd, y")} - ${format(orderedDates[0], "LLL dd, y")}`}</CardContent>
-      {itinerary.image && (
-        <img
-          className="absolute top-1/2 left-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 dark:brightness-25"
-          src={itinerary.image}
-        />
-      )}
-    </Card>
+    </Link>
   );
 }
