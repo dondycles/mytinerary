@@ -102,7 +102,7 @@ export default function ItineraryForm({
       </DialogTrigger>
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
-        className="w-lg rounded-3xl p-4"
+        className="w-full max-w-lg rounded-3xl p-4"
       >
         <DialogHeader>
           <DialogTitle>
