@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
   loader: ({ context }) => {
     if (context.user) {
       throw redirect({
-        to: "/",
+        to: "/itineraries",
       });
     }
     return {
