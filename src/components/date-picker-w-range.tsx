@@ -41,7 +41,7 @@ export function MultipleDatePicker({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0" align="center" side="top">
           <Calendar
             initialFocus
             mode="multiple"
@@ -52,7 +52,7 @@ export function MultipleDatePicker({
             }
             selected={dates}
             onSelect={setDates}
-            numberOfMonths={2}
+            numberOfMonths={1}
           />
         </PopoverContent>
       </Popover>

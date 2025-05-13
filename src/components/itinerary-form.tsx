@@ -102,7 +102,7 @@ export default function ItineraryForm({
       </DialogTrigger>
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
-        className="max-h-dvh w-full max-w-lg overflow-scroll rounded-3xl p-4"
+        className="max-h-dvh w-full max-w-sm rounded-3xl p-4"
       >
         <DialogHeader>
           <DialogTitle>
