@@ -17,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./animate-ui/radix/dropdown-menu";
+import { Button } from "./ui/button";
 
 export default function ItineraryCard({
   itinerary,
@@ -51,8 +52,13 @@ export default function ItineraryCard({
           )}
         </CardHeader>
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex size-10 items-center justify-center rounded-full">
-            <Ellipsis className="text-muted-foreground size-5" />
+          <DropdownMenuTrigger
+            asChild
+            className="flex size-10 items-center justify-center rounded-full"
+          >
+            <Button variant={"ghost"}>
+              <Ellipsis className="text-muted-foreground size-5" />
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>

@@ -74,7 +74,7 @@ function RouteComponent() {
           </Button>
           <div className="flex flex-row gap-2">
             <Dialog modal>
-              <DialogTrigger>
+              <DialogTrigger asChild>
                 <Button size={"icon"} variant={"ghost"} className="rounded-full">
                   <Share2 />
                 </Button>

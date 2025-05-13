@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./animate-ui/radix/dropdown-menu";
+import { Button } from "./ui/button";
 export default function Nav({ user }: { user: UserType }) {
   const router = useRouter();
   const location = useLocation();
@@ -43,8 +44,10 @@ export default function Nav({ user }: { user: UserType }) {
           <GalleryVerticalEnd className="size-5" />
         </Link>
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <ChevronDown className="size-5" />
+          <DropdownMenuTrigger asChild>
+            <Button size="icon" className="rounded-full" variant={"ghost"}>
+              <ChevronDown className="size-5" />
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {user ? (
