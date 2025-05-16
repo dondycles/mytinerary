@@ -1,4 +1,11 @@
 import {
+  InputButton,
+  InputButtonAction,
+  InputButtonInput,
+  InputButtonProvider,
+  InputButtonSubmit,
+} from "@/components/animate-ui/buttons/input";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -18,6 +25,7 @@ import {
 import {
   addItinerary,
   editItinerary,
+  findCollaborationId,
   itinerarySchema,
 } from "@/lib/server/functions/itinerary";
 import { itinerary } from "@/lib/server/schema";
@@ -33,6 +41,7 @@ import { MultipleDatePicker } from "./date-picker-w-range";
 import ImageInput from "./image-input";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
 export default function ItineraryForm({
   refetch,
@@ -58,7 +67,7 @@ export default function ItineraryForm({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
-
+  const [collabId, setCollabId] = useState<string>();
   const form = useForm<ItinerarySchema>({
     resolver: zodResolver(itinerarySchema),
     defaultValues: {
@@ -91,13 +100,26 @@ export default function ItineraryForm({
     },
   });
 
+  const handleFindCollabId = useMutation({
+    mutationFn: async () => await findCollaborationId({ data: collabId as string }),
+    onSuccess: () => {
+      form.reset();
+      refetch();
+      setOpen(false);
+    },
+  });
+
   const isSubmitting = form.formState.isSubmitting || handleAddItinerary.isPending;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={variant} size={"icon"} className={cn("", className)}>
-          {icon}
+          {handleFindCollabId.isPending || handleAddItinerary.isPending ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            icon
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -222,6 +244,32 @@ export default function ItineraryForm({
             </DialogFooter>
           </form>
         </Form>
+
+        {!isEditing ? (
+          <div>
+            <div className="grid grid-cols-[1fr_32px_1fr]">
+              <Separator className="my-auto" />
+              <p className="text-muted-foreground text-center text-sm">or</p>
+              <Separator className="my-auto" />
+            </div>
+            <InputButtonProvider className="w-full" id="collabCode">
+              <InputButton className="w-full">
+                <InputButtonAction className="w-full">
+                  Enter Collaboration Code
+                </InputButtonAction>
+                <InputButtonSubmit onClick={() => handleFindCollabId.mutate()}>
+                  Submit
+                </InputButtonSubmit>
+              </InputButton>
+              <InputButtonInput
+                type="text"
+                value={collabId}
+                onChange={(e) => setCollabId(e.target.value)}
+                disabled={handleFindCollabId.isPending}
+              />
+            </InputButtonProvider>
+          </div>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

@@ -1,6 +1,6 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, arrayContains, asc, desc, eq, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { activity, itinerary } from "../schema";
@@ -35,13 +35,12 @@ export const editItinerary = createServerFn({ method: "POST" })
       .update(itinerary)
       .set({
         name: data.name,
-        userId: user.id,
         description: data.description,
         image: data.image,
         updatedAt: new Date(),
         dates: data.dates,
       })
-      .where(and(eq(itinerary.userId, user.id), eq(itinerary.id, data.id)));
+      .where(and(arrayContains(itinerary.people, [user.id]), eq(itinerary.id, data.id)));
     // if (data.pastDates) {
     //   const onlyInArr1 = data.pastDates.filter((val) => !data.dates.includes(val));
     //   const onlyInArr2 = data.dates.filter((val) => !data.pastDates!.includes(val));
@@ -64,16 +63,26 @@ export const editItinerary = createServerFn({ method: "POST" })
   });
 export const deleteItinerary = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((id: number) => id)
-  .handler(async ({ data: id }) => {
-    await db.delete(itinerary).where(eq(itinerary.id, id));
+  .validator((data: typeof itinerary.$inferSelect) => data)
+  .handler(async ({ data, context: { user } }) => {
+    if (data.userId !== user.id) throw new Error("You are not the creator!");
+    await db
+      .delete(itinerary)
+      .where(and(eq(itinerary.id, data.id), eq(itinerary.userId, user.id)));
   });
 
 export const getItineraries = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context: { user } }) => {
     return await db.query.itinerary.findMany({
-      where: (itinerary, { eq }) => eq(itinerary.userId, user.id),
+      where: (itinerary) =>
+        or(
+          and(
+            arrayContains(itinerary.people, [user.id]),
+            eq(itinerary.privacy, "collaborative"),
+          ),
+          eq(itinerary.userId, user.id),
+        ),
       orderBy: [desc(itinerary.createdAt)],
     });
   });
@@ -84,7 +93,16 @@ export const deepViewItinerary = createServerFn({ method: "GET" })
   .handler(async ({ context: { user }, data: id }) => {
     return await db.query.itinerary.findFirst({
       where: (itinerary, { eq }) =>
-        and(eq(itinerary.userId, user.id), eq(itinerary.id, id)),
+        and(
+          or(
+            and(
+              arrayContains(itinerary.people, [user.id]),
+              eq(itinerary.privacy, "collaborative"),
+            ),
+            eq(itinerary.userId, user.id),
+          ),
+          eq(itinerary.id, id),
+        ),
       with: {
         activitiesData: {
           orderBy: [asc(activity.startTime)],
@@ -112,7 +130,7 @@ export const editItineraryImg = createServerFn({ method: "POST" })
         image: data.image,
         updatedAt: new Date(),
       })
-      .where(and(eq(itinerary.userId, user.id), eq(itinerary.id, data.id)));
+      .where(and(arrayContains(itinerary.people, [user.id]), eq(itinerary.id, data.id)));
   });
 
 export const hideThisDate = createServerFn({ method: "POST" })
@@ -130,19 +148,47 @@ export const hideThisDate = createServerFn({ method: "POST" })
         hiddenDates: newDate,
         updatedAt: new Date(),
       })
-      .where(and(eq(itinerary.userId, user.id), eq(itinerary.id, itineraryData.id)));
+      .where(
+        and(
+          arrayContains(itinerary.people, [user.id]),
+          eq(itinerary.id, itineraryData.id),
+        ),
+      );
   });
 
 export const changeItineraryPrivacy = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(
-    (data: { privacy: (typeof itinerary.$inferSelect)["privacy"]; id: number }) => data,
+    (data: {
+      privacy: (typeof itinerary.$inferSelect)["privacy"];
+      id: number;
+      itineraryData: typeof itinerary.$inferSelect;
+    }) => data,
   )
-  .handler(async ({ context: { user }, data: { privacy, id } }) => {
+  .handler(async ({ context: { user }, data: { privacy, id, itineraryData } }) => {
+    if (itineraryData.userId !== user.id) throw new Error("You are not the creator!");
     await db
       .update(itinerary)
       .set({
         privacy,
       })
-      .where(and(eq(itinerary.userId, user.id), eq(itinerary.id, id)));
+      .where(and(arrayContains(itinerary.people, [user.id]), eq(itinerary.id, id)));
+  });
+
+export const findCollaborationId = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .validator((data: string) => data)
+  .handler(async ({ context: { user }, data }) => {
+    const itineraryData = await db.query.itinerary.findFirst({
+      where: (itinerary, { eq }) => eq(itinerary.collabId, data),
+    });
+    if (itineraryData) {
+      await db
+        .update(itinerary)
+        .set({
+          people: [...itineraryData.people, user.id],
+        })
+        .where(eq(itinerary.id, itineraryData.id));
+    }
+    if (!itineraryData) throw new Error("CollabId Not Found!");
   });

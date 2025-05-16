@@ -1,3 +1,4 @@
+import { ActionConfirmationDialog } from "@/components/action-confirmation-dialog";
 import Activities from "@/components/activities";
 import { CopyButton } from "@/components/animate-ui/buttons/copy";
 import {
@@ -15,11 +16,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { deepViewItineraryQueryOptions } from "@/lib/queries/itinerary";
-import { changeItineraryPrivacy } from "@/lib/server/functions/itinerary";
+import {
+  changeItineraryPrivacy,
+  deleteItinerary,
+} from "@/lib/server/functions/itinerary";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { isSameDay } from "date-fns";
-import { ChevronLeft, Lock, Pencil, Users2 } from "lucide-react";
+import { ChevronLeft, Loader2, Lock, Pencil, Trash2, Users2 } from "lucide-react";
 export const Route = createFileRoute("/(user)/itineraries/$id/")({
   beforeLoad: async ({ context }) => {
     if (!context.user) {
@@ -43,7 +47,8 @@ export const Route = createFileRoute("/(user)/itineraries/$id/")({
 });
 
 function RouteComponent() {
-  const { id } = Route.useLoaderData();
+  const { id, user, queryClient } = Route.useLoaderData();
+  const navigate = Route.useNavigate();
   const route = useRouter();
   const itinerary = useSuspenseQuery(deepViewItineraryQueryOptions(id));
   const dates = itinerary.data.dates.sort(
@@ -60,9 +65,21 @@ function RouteComponent() {
 
   const handleChangeItineraryPrivacy = useMutation({
     mutationFn: async (privacy: "private" | "collaborative") =>
-      await changeItineraryPrivacy({ data: { id, privacy } }),
+      await changeItineraryPrivacy({
+        data: { id, privacy, itineraryData: itinerary.data },
+      }),
     onSuccess: () => {
       itinerary.refetch();
+    },
+  });
+
+  const handleDeleteItinerary = useMutation({
+    mutationFn: async () => await deleteItinerary({ data: itinerary.data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["itineraries", user.id],
+      });
+      navigate({ to: "/itineraries" });
     },
   });
 
@@ -103,6 +120,7 @@ function RouteComponent() {
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem
+                      disabled={itinerary.data.userId !== user.id}
                       onClick={() => handleChangeItineraryPrivacy.mutate("private")}
                       value="private"
                       id="r1"
@@ -111,6 +129,7 @@ function RouteComponent() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem
+                      disabled={itinerary.data.userId !== user.id}
                       onClick={() => handleChangeItineraryPrivacy.mutate("collaborative")}
                       value="collaborative"
                       id="r2"
@@ -120,9 +139,10 @@ function RouteComponent() {
                 </RadioGroup>
 
                 {itinerary.data.privacy === "collaborative" ? (
-                  <div className="flex flex-col gap-2">
+                  <div className="text-muted-foreground flex flex-col gap-2 text-sm">
+                    <p>Current people</p>
                     {itinerary.data.peopleData.map((p) => (
-                      <p key={p.id} className="text-muted-foreground text-sm">
+                      <p key={p.id} className="text-foreground indent-7">
                         {p.email}
                       </p>
                     ))}
@@ -143,7 +163,6 @@ function RouteComponent() {
                 ) : null}
               </DialogContent>
             </Dialog>
-
             <ItineraryForm
               variant={"ghost"}
               isEditing
@@ -152,6 +171,25 @@ function RouteComponent() {
               icon={<Pencil />}
               className="rounded-full"
             />
+            <ActionConfirmationDialog
+              close={handleDeleteItinerary.isSuccess}
+              confirm={() => handleDeleteItinerary.mutate()}
+              loading={handleDeleteItinerary.isPending}
+              description="Are you sure to delete this itinerary?"
+            >
+              <Button
+                hidden={itinerary.data.userId !== user.id}
+                variant={"ghost"}
+                size={"icon"}
+                className="rounded-full"
+              >
+                {handleDeleteItinerary.isPending ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <Trash2 />
+                )}
+              </Button>
+            </ActionConfirmationDialog>
           </div>
         </div>
         <ItineraryCard itinerary={itinerary.data} />
