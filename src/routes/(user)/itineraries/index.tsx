@@ -33,13 +33,16 @@ function RouteComponent() {
         isEditing={false}
         refetch={itineraries.refetch}
       />
-      {itineraries.data.map((itinerary) => (
-        <ItineraryCard
-          key={itinerary.id}
-          itinerary={itinerary}
-          refetch={itineraries.refetch}
-        />
-      ))}
+      {itineraries.data.length !== 0 ? (
+        itineraries.data.map((itinerary) => (
+          <ItineraryCard key={itinerary.id} itinerary={itinerary} />
+        ))
+      ) : (
+        <p className="text-muted-foreground text-sm">
+          Start adding your very first itinerary by clicking the floating "+" buttong
+          below.
+        </p>
+      )}
     </div>
   );
 }
