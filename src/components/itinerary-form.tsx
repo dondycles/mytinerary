@@ -246,7 +246,7 @@ export default function ItineraryForm({
         </Form>
 
         {!isEditing ? (
-          <div>
+          <div className="space-y-4">
             <div className="grid grid-cols-[1fr_32px_1fr]">
               <Separator className="my-auto" />
               <p className="text-muted-foreground text-center text-sm">or</p>

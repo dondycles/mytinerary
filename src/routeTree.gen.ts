@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as LogoutImport } from './routes/logout'
 import { Route as PathlessLayoutImport } from './routes/_pathlessLayout'
 import { Route as userRouteImport } from './routes/(user)/route'
 import { Route as IndexImport } from './routes/index'
@@ -18,6 +19,12 @@ import { Route as userItinerariesIndexImport } from './routes/(user)/itineraries
 import { Route as userItinerariesIdIndexImport } from './routes/(user)/itineraries/$id/index'
 
 // Create/Update Routes
+
+const LogoutRoute = LogoutImport.update({
+  id: '/logout',
+  path: '/logout',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const PathlessLayoutRoute = PathlessLayoutImport.update({
   id: '/_pathlessLayout',
@@ -72,6 +79,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PathlessLayoutImport
       parentRoute: typeof rootRoute
     }
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutImport
+      parentRoute: typeof rootRoute
+    }
     '/(user)/itineraries/': {
       id: '/(user)/itineraries/'
       path: '/itineraries'
@@ -108,6 +122,7 @@ const userRouteRouteWithChildren = userRouteRoute._addFileChildren(
 export interface FileRoutesByFullPath {
   '/': typeof userRouteRouteWithChildren
   '': typeof PathlessLayoutRoute
+  '/logout': typeof LogoutRoute
   '/itineraries': typeof userItinerariesIndexRoute
   '/itineraries/$id': typeof userItinerariesIdIndexRoute
 }
@@ -115,6 +130,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof userRouteRouteWithChildren
   '': typeof PathlessLayoutRoute
+  '/logout': typeof LogoutRoute
   '/itineraries': typeof userItinerariesIndexRoute
   '/itineraries/$id': typeof userItinerariesIdIndexRoute
 }
@@ -124,20 +140,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/(user)': typeof userRouteRouteWithChildren
   '/_pathlessLayout': typeof PathlessLayoutRoute
+  '/logout': typeof LogoutRoute
   '/(user)/itineraries/': typeof userItinerariesIndexRoute
   '/(user)/itineraries/$id/': typeof userItinerariesIdIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/itineraries' | '/itineraries/$id'
+  fullPaths: '/' | '' | '/logout' | '/itineraries' | '/itineraries/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/itineraries' | '/itineraries/$id'
+  to: '/' | '' | '/logout' | '/itineraries' | '/itineraries/$id'
   id:
     | '__root__'
     | '/'
     | '/(user)'
     | '/_pathlessLayout'
+    | '/logout'
     | '/(user)/itineraries/'
     | '/(user)/itineraries/$id/'
   fileRoutesById: FileRoutesById
@@ -147,12 +165,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   userRouteRoute: typeof userRouteRouteWithChildren
   PathlessLayoutRoute: typeof PathlessLayoutRoute
+  LogoutRoute: typeof LogoutRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   userRouteRoute: userRouteRouteWithChildren,
   PathlessLayoutRoute: PathlessLayoutRoute,
+  LogoutRoute: LogoutRoute,
 }
 
 export const routeTree = rootRoute
@@ -167,7 +187,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/(user)",
-        "/_pathlessLayout"
+        "/_pathlessLayout",
+        "/logout"
       ]
     },
     "/": {
@@ -182,6 +203,9 @@ export const routeTree = rootRoute
     },
     "/_pathlessLayout": {
       "filePath": "_pathlessLayout.tsx"
+    },
+    "/logout": {
+      "filePath": "logout.tsx"
     },
     "/(user)/itineraries/": {
       "filePath": "(user)/itineraries/index.tsx",

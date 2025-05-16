@@ -1,6 +1,4 @@
-import authClient from "@/lib/auth-client";
 import { UserType } from "@/routes/__root";
-import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useRouter } from "@tanstack/react-router";
 import {
   ChevronDown,
@@ -20,7 +18,6 @@ import { Button } from "./ui/button";
 export default function Nav({ user }: { user: UserType }) {
   const router = useRouter();
   const location = useLocation();
-  const queryClient = useQueryClient();
   function toggleTheme() {
     if (
       document.documentElement.classList.contains("dark") ||
@@ -63,10 +60,7 @@ export default function Nav({ user }: { user: UserType }) {
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={async () => {
-                await authClient.signOut();
-                await queryClient.resetQueries();
-                await router.invalidate();
-                await router.navigate({ to: "/" });
+                router.navigate({ to: "/logout" });
               }}
             >
               <LogOut />

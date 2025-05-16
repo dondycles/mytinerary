@@ -23,7 +23,15 @@ import {
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { isSameDay } from "date-fns";
-import { ChevronLeft, Loader2, Lock, Pencil, Trash2, Users2 } from "lucide-react";
+import {
+  ChevronLeft,
+  History,
+  Loader2,
+  Lock,
+  Pencil,
+  Trash2,
+  Users2,
+} from "lucide-react";
 export const Route = createFileRoute("/(user)/itineraries/$id/")({
   beforeLoad: async ({ context }) => {
     if (!context.user) {
@@ -99,6 +107,14 @@ function RouteComponent() {
             <ChevronLeft />
           </Button>
           <div className="flex flex-row gap-2">
+            <Button
+              hidden={itinerary.data.privacy !== "collaborative"}
+              variant={"ghost"}
+              size={"icon"}
+              className="rounded-full"
+            >
+              <History />
+            </Button>
             <Dialog modal>
               <DialogTrigger asChild>
                 <Button size={"icon"} variant={"ghost"} className="rounded-full">
